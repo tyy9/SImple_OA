@@ -86,6 +86,7 @@ public class SysUserController {
             @ApiParam(name = "user",value = "用户对象")
             SysUser sysUser
     ){
+
         boolean b = sysUserService.updateById(sysUser);
         return b?R.ok():R.error();
     }
@@ -98,6 +99,33 @@ public class SysUserController {
     ){
         boolean b = sysUserService.removeById(id);
         return b?R.ok():R.error();
+    }
+
+    @ApiOperation(value = "登录")
+    @PostMapping("/login")
+    public R login(
+            @ApiParam(name="sysUser",value = "用户对象")
+            @RequestBody SysUser sysUser
+    ){
+        LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        sysUserLambdaQueryWrapper.eq(SysUser::getUsername,sysUser.getUsername())
+                .eq(SysUser::getPassword,sysUser.getPassword());
+        SysUser one = sysUserService.getOne(sysUserLambdaQueryWrapper);
+        if(one!=null){
+            return R.ok();
+        }else{
+            return R.error().message("登录失败");
+        }
+    }
+
+    @ApiOperation(value = "注册")
+    @PostMapping("/register")
+    public R register(
+            @ApiParam(name = "user",value = "用户对象")
+            @RequestBody SysUser user
+    ){
+        boolean save = sysUserService.save(user);
+        return save?R.ok():R.error();
     }
 }
 
