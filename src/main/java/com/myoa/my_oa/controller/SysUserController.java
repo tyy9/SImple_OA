@@ -147,7 +147,7 @@ public class  SysUserController {
             SysUser byId = sysUserService.getById(memberIdByJwtToken);
             return R.ok().data("user", byId);
         }else{
-         return R.error().message("未能找到用户信息");
+         return R.error().message("未能找到用户信息").code(21);
         }
     }
 }
