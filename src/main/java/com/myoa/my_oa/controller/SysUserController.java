@@ -4,6 +4,7 @@ package com.myoa.my_oa.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.myoa.my_oa.common.R;
+import com.myoa.my_oa.config.JwtUtils;
 import com.myoa.my_oa.entity.SysUser;
 import com.myoa.my_oa.service.SysUserService;
 import io.swagger.annotations.Api;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -28,7 +30,7 @@ import java.util.List;
 @Api(tags = "用户接口")
 @RestController
 @RequestMapping("/my_oa/sys-user")
-public class SysUserController {
+public class  SysUserController {
 
     @Autowired
     SysUserService sysUserService;
@@ -84,7 +86,7 @@ public class SysUserController {
     @PostMapping("/updateUser")
     public R updateUser(
             @ApiParam(name = "user",value = "用户对象")
-            SysUser sysUser
+            @RequestBody  SysUser sysUser
     ){
 
         boolean b = sysUserService.updateById(sysUser);
@@ -107,15 +109,17 @@ public class SysUserController {
             @ApiParam(name="sysUser",value = "用户对象")
             @RequestBody SysUser sysUser
     ){
-        LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        sysUserLambdaQueryWrapper.eq(SysUser::getUsername,sysUser.getUsername())
-                .eq(SysUser::getPassword,sysUser.getPassword());
-        SysUser one = sysUserService.getOne(sysUserLambdaQueryWrapper);
-        if(one!=null){
-            return R.ok();
-        }else{
-            return R.error().message("登录失败");
-        }
+//        LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        sysUserLambdaQueryWrapper.eq(SysUser::getUsername,sysUser.getUsername())
+//                .eq(SysUser::getPassword,sysUser.getPassword());
+//        SysUser one = sysUserService.getOne(sysUserLambdaQueryWrapper);
+//        if(one!=null){
+//            return R.ok();
+//        }else{
+//            return R.error().message("登录失败");
+//        }
+        String token = sysUserService.Login(sysUser);
+        return R.ok().data("token",token);
     }
 
     @ApiOperation(value = "注册")
@@ -126,6 +130,25 @@ public class SysUserController {
     ){
         boolean save = sysUserService.save(user);
         return save?R.ok():R.error();
+    }
+
+    @ApiOperation(value = "根据token值获取用户信息")
+    @GetMapping("/getToken")
+    public R getToken(HttpServletRequest request){
+        //检查是否能从请求头部获取token值
+        boolean b = JwtUtils.checkToken(request);
+        System.out.println(b);
+        if(b) {
+            //通过token值获取id值
+            Integer memberIdByJwtToken = JwtUtils.getMemberIdByJwtToken(request);
+            System.out.println("token="+memberIdByJwtToken);
+//            Integer id = Integer.parseInt(memberIdByJwtToken);
+            //根据id值获取用户信息
+            SysUser byId = sysUserService.getById(memberIdByJwtToken);
+            return R.ok().data("user", byId);
+        }else{
+         return R.error().message("未能找到用户信息");
+        }
     }
 }
 

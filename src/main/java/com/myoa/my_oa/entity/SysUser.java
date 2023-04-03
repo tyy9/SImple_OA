@@ -1,7 +1,10 @@
 package com.myoa.my_oa.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
@@ -46,6 +49,7 @@ public class SysUser implements Serializable {
     @ApiModelProperty(value = "地址")
     private String address;
 
+    @TableField(fill= FieldFill.INSERT_UPDATE)
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
 

@@ -12,5 +12,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-03-31
  */
 public interface SysUserService extends IService<SysUser> {
-
+    String Login(SysUser user);
 }
