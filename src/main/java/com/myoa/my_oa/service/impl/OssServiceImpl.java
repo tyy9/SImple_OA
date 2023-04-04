@@ -31,8 +31,9 @@ public class OssServiceImpl implements OssService {
         String filename = multipartFile.getOriginalFilename();
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         filename=uuid+filename;
-        DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("yyyy/mm/dd");
+        DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("yyyy/MM/dd");
         String datetime = dateTimeFormatter.format(LocalDateTime.now());
+        System.out.println("datetime=>"+datetime);
         filename=datetime+"/"+filename;
         //上传文件到OSS
         ossClient.putObject(bucketname,filename,inputStream);
@@ -41,4 +42,17 @@ public class OssServiceImpl implements OssService {
         String url="https://"+bucketname+"."+endpoint+"/"+filename;
         return url;
     }
+
+    @Override
+    public boolean delete(String url) {
+        OSSClient ossClient = new OSSClient(endpoint,keyid,keysecret);
+        String host="https://"+bucketname+"."+endpoint+"/";
+        String filename=url.substring(host.length());
+        //判断是否删除成功
+        boolean isdeleted=false;
+        ossClient.deleteObject(bucketname,filename);
+        ossClient.shutdown();
+        return true;
+    }
+
 }

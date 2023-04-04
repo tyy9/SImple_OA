@@ -78,4 +78,14 @@ public class JwtUtils {
         Claims claims = claimsJws.getBody();
         return (Integer) claims.get("id");
     }
+
+    //OSS改造，从请求头的Authorization获取token
+    public static Integer getMemberIdByJwtToken_OSS(HttpServletRequest request) {
+        //从request的header中获取token值
+        String jwtToken = request.getHeader("Authorization");
+        if(StringUtils.isEmpty(jwtToken)) return 0;
+        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(APP_SECRET).parseClaimsJws(jwtToken);
+        Claims claims = claimsJws.getBody();
+        return (Integer) claims.get("id");
+    }
 }

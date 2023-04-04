@@ -6,4 +6,5 @@ import java.io.IOException;
 
 public interface OssService {
         String upload(MultipartFile multipartFile) throws IOException;
+        boolean delete(String url);
 }
