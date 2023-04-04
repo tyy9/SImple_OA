@@ -16,7 +16,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                         "/webjars/**",
                         "/swagger-resources",
                         "/v2/api-docs")
-                .excludePathPatterns("/my_oa/oss/*");
+                .excludePathPatterns("/my_oa/oss/upload","/my_oa/oss/delete");
     }
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
