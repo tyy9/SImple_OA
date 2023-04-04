@@ -103,6 +103,16 @@ public class  SysUserController {
         return b?R.ok():R.error();
     }
 
+    @ApiOperation(value = "批量删除用户信息")
+    @DeleteMapping("/deletebatch")
+    public R deletebatch(
+            @ApiParam(name="ids",value = "用户id集合")
+            @RequestBody List<Integer> ids
+    ){
+        boolean b = sysUserService.removeByIds(ids);
+        return b?R.ok():R.error();
+    }
+
     @ApiOperation(value = "登录")
     @PostMapping("/login")
     public R login(
