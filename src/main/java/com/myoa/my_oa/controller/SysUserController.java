@@ -48,6 +48,7 @@ public class  SysUserController {
             @PathVariable  int page,
             @ApiParam(name = "limit",value = "最大显示数",required = true)
             @PathVariable int limit,
+            @ApiParam(name = "sysUser",value = "用户对象")
             @RequestBody(required = false) SysUser sysUser
     ){
         Page<SysUser> sysUserPage = new Page<>(page,limit);

@@ -43,7 +43,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         //如果没有token直接执行拦截
         if(JwtUtils.getMemberIdByJwtToken(request)==0){
 
-            throw  new CustomerException(20000,"未登录，无法访问api");
+            throw  new CustomerException(21,"未登录，无法访问api");
         }
         //如果无法从token值中找到相应用户对象直接拦截
 //        if(sysUserService.getById(memberIdByJwtToken)==null){
