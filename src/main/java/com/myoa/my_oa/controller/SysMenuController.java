@@ -35,37 +35,7 @@ public class SysMenuController {
     @ApiOperation(value = "菜单查询接口")
     @GetMapping("/findMenu")
     public R pageMenu(){
-        LambdaQueryWrapper<SysMenu> sysMenuLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        //先找出所有父菜单,pid为空
-        sysMenuLambdaQueryWrapper.isNull(SysMenu::getPid);
-        List<SysMenu> f_list = sysMenuService.list(sysMenuLambdaQueryWrapper);
-        //找出所有子菜单并放入父菜单,pid不为空
-        LambdaQueryWrapper<SysMenu> sysMenuLambdaQueryWrapper1 = new LambdaQueryWrapper<>();
-        sysMenuLambdaQueryWrapper1.isNotNull(SysMenu::getPid);
-        List<SysMenu> c_list = sysMenuService.list(sysMenuLambdaQueryWrapper1);
-        //创建树形菜单集合
-        List<SysMenu_father> sysMenu_fathers = new ArrayList<SysMenu_father>();
-        for(SysMenu s:f_list){
-            //将找到的父菜单集合实例化成对象
-            SysMenu_father sysMenu_father = new SysMenu_father();
-            sysMenu_father.setDescription(s.getDescription());
-            sysMenu_father.setIcon(s.getIcon());
-            sysMenu_father.setId(s.getId());
-            sysMenu_father.setName(s.getName());
-            sysMenu_father.setPagePath(s.getPagePath());
-            sysMenu_father.setSortNum(s.getSortNum());
-            sysMenu_father.setPath(s.getPath());
-            sysMenu_father.setPid(s.getPid());
-            //创建子菜单集合，根据pid与id适配加入集合中
-            List<SysMenu> sysMenus_child = new ArrayList<>();
-            for(SysMenu s2:c_list){
-                if(s2.getPid()==s.getId()){
-                    sysMenus_child.add(s2);
-                }
-            }
-            sysMenu_father.setChildren(sysMenus_child);
-            sysMenu_fathers.add(sysMenu_father);
-        }
+        List<SysMenu_father> sysMenu_fathers = sysMenuService.getmenu();
         return R.ok().data("menu",sysMenu_fathers);
     }
 
