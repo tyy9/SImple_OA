@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.myoa.my_oa.common.R;
 import com.myoa.my_oa.config.JwtUtils;
+import com.myoa.my_oa.entity.SysRole;
 import com.myoa.my_oa.entity.SysUser;
+import com.myoa.my_oa.entity.dto.SysMenu_father;
+import com.myoa.my_oa.service.SysRoleService;
 import com.myoa.my_oa.service.SysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
@@ -34,6 +37,8 @@ public class  SysUserController {
 
     @Autowired
     SysUserService sysUserService;
+    @Autowired
+    SysRoleService sysRoleService;
     @ApiOperation(value = "查询所有的用户")
     @GetMapping("/findAlluser")
     public R findAll(){
@@ -160,6 +165,16 @@ public class  SysUserController {
         }else{
          return R.error().message("未能找到用户信息").code(21);
         }
+    }
+
+    @ApiOperation(value = "根据用户权限获取菜单列表")
+    @PostMapping("/getUserMenu")
+    public R getUserMenu(
+            @ApiParam(name="sysUser",value = "用户信息")
+            @RequestBody SysUser sysUser
+    ){
+        List<SysMenu_father> menuList = sysUserService.getMenuList(sysUser);
+        return R.ok().data("menulist",menuList);
     }
 }
 
