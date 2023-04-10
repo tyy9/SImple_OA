@@ -144,6 +144,7 @@ public class  SysUserController {
             @ApiParam(name = "user",value = "用户对象")
             @RequestBody SysUser user
     ){
+        user.setRole("ROLE_ADMIN");
         boolean save = sysUserService.save(user);
         return save?R.ok():R.error();
     }

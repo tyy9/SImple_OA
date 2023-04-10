@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.myoa.my_oa.common.R;
 import com.myoa.my_oa.entity.SysFile;
+import com.myoa.my_oa.service.OssService;
 import com.myoa.my_oa.service.SysFileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,6 +31,8 @@ import java.util.List;
 public class SysFileController {
     @Autowired
     SysFileService sysFileService;
+    @Autowired
+    OssService ossService;
     @ApiOperation(value = "文件分页接口")
     @PostMapping("/filepage/{page}/{limit}")
     public R filepage(
