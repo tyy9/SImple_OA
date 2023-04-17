@@ -47,6 +47,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         SysUser one = this.getOne(sysUserLambdaQueryWrapper);
         if(one!=null){
             String token=JwtUtils.getJwtToken(one.getId(),one.getUsername());
+
             return token;
         }else{
             throw new CustomerException(20000,"登录失败，请检查你的用户名与密码");
