@@ -26,6 +26,9 @@ public class SubjectDto implements Serializable {
     @ApiModelProperty(value = "类别名称")
     private String title;
 
+    @ApiModelProperty(value = "父ID")
+    private String parentId;
+
     @ApiModelProperty(value = "子菜单列表")
     private List<Subject> subjects_children;
 

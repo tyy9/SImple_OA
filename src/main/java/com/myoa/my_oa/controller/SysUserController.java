@@ -177,5 +177,17 @@ public class  SysUserController {
         List<SysMenu_father> menuList = sysUserService.getMenuList(sysUser);
         return R.ok().data("menulist",menuList);
     }
+
+    @ApiOperation(value = "根据用户权限获取用户信息")
+    @PostMapping("/getUserByRole/{role}")
+    public R getUserByRole(
+            @ApiParam(name="role",value = "角色权限")
+            @PathVariable String role
+    ){
+        LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        sysUserLambdaQueryWrapper.eq(SysUser::getRole,role);
+        List<SysUser> list = sysUserService.list(sysUserLambdaQueryWrapper);
+        return R.ok().data("userlist",list);
+    }
 }
 

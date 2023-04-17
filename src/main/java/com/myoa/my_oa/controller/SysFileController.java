@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,6 +65,35 @@ public class SysFileController {
         return b?R.ok():R.error();
     }
 
+    @ApiOperation(value = "根据文件路径删除接口")
+    @DeleteMapping("/deletefileByUrl")
+    public R deletefileByUrl(
+            @ApiParam(name="sysfile",value = "文件id")
+            @RequestBody SysFile sysFile
+    ){
+        LambdaQueryWrapper<SysFile> sysFileLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        sysFileLambdaQueryWrapper.eq(SysFile::getUrl,sysFile.getUrl());
+        SysFile one = sysFileService.getOne(sysFileLambdaQueryWrapper);
+        boolean b = sysFileService.removeById(one);
+        return b?R.ok():R.error();
+    }
+
+//    @ApiOperation(value = "根据文件路径获取id集合")
+//    @PostMapping("/geturlListByUrl")
+//    public R geturlListByUrl(
+//            @ApiParam(name="sysfile",value = "文件id")
+//            @RequestParam(value = "file",required = false)  List<String> urls
+//    ){
+//        List<Integer> ids=new ArrayList<>();
+//        for(String s:urls){
+//            LambdaQueryWrapper<SysFile> sysFileLambdaQueryWrapper = new LambdaQueryWrapper<>();
+//            sysFileLambdaQueryWrapper.eq(SysFile::getUrl,urls);
+//            SysFile one = sysFileService.getOne(sysFileLambdaQueryWrapper);
+//            ids.add(one.getId());
+//        }
+//        return R.ok().data("fileids",ids);
+//    }
+
     @ApiOperation(value = "文件批量删除接口")
     @DeleteMapping("/deletebatch")
     public R deletebatch(
@@ -83,5 +113,7 @@ public class SysFileController {
         boolean save = sysFileService.save(sysFile);
         return save?R.ok():R.error();
     }
+
+
 }
 
