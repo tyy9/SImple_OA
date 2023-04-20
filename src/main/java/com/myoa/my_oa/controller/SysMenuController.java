@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.myoa.my_oa.common.R;
 import com.myoa.my_oa.entity.SysMenu;
 import com.myoa.my_oa.entity.SysRole;
+import com.myoa.my_oa.entity.SysRoleMenu;
 import com.myoa.my_oa.entity.dto.SysMenu_father;
 import com.myoa.my_oa.service.SysMenuService;
+import com.myoa.my_oa.service.SysRoleMenuService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -32,6 +34,8 @@ import java.util.List;
 public class SysMenuController {
     @Autowired
     SysMenuService sysMenuService;
+    @Autowired
+    SysRoleMenuService sysRoleMenuService;
     @ApiOperation(value = "菜单查询接口")
     @GetMapping("/findMenu")
     public R pageMenu(){
@@ -87,7 +91,16 @@ public class SysMenuController {
     public R deletebatch(
             @ApiParam(name="ids",value = "菜单id集合")
             @RequestBody List<Integer> ids
-    ){
+            ){
+
+        //删除关系表信息
+        for(Integer i:ids){
+            LambdaQueryWrapper<SysRoleMenu> sysRoleMenuLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            sysRoleMenuLambdaQueryWrapper.eq(SysRoleMenu::getMenuId,i);
+            sysRoleMenuService.remove(sysRoleMenuLambdaQueryWrapper);
+            System.out.println(ids);
+        }
+
         boolean b = sysMenuService.removeByIds(ids);
         return b?R.ok():R.error();
     }

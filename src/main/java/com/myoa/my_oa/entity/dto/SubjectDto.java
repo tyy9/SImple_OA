@@ -30,7 +30,7 @@ public class SubjectDto implements Serializable {
     private String parentId;
 
     @ApiModelProperty(value = "子菜单列表")
-    private List<Subject> subjects_children;
+    private List<Subject> children;
 
 
 }
