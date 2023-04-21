@@ -1,22 +1,30 @@
 package com.myoa.my_oa.Interceptor;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {
+
+    @Bean
+    public JwtInterceptor jwtInterceptor(){return  new JwtInterceptor();}
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new JwtInterceptor())
+        registry.addInterceptor(jwtInterceptor())
                 .addPathPatterns("/**")//拦截所有api请求,由自定义的拦截器来决定是否通行
                 .excludePathPatterns("/my_oa/sys-user/login")
                 .excludePathPatterns("/my_oa/sys-user/register")
+                .excludePathPatterns("/my_oa/sys-user/register_common")
+                .excludePathPatterns("/my_oa/sys-user/getToken")
+                .excludePathPatterns("/my_oa/sys-user/getIndexTeacher")
+                .excludePathPatterns("/my_oa/course/getIndexCourseData")
                 .excludePathPatterns("/doc.html",
                         "/webjars/**",
                         "/swagger-resources",
-                        "/v2/api-docs")
-                .excludePathPatterns("/my_oa/oss/upload","/my_oa/oss/delete");
+                        "/v2/api-docs");
+//                .excludePathPatterns("/my_oa/oss/upload","/my_oa/oss/delete");
     }
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

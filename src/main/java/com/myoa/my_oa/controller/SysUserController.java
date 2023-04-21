@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -149,6 +150,17 @@ public class  SysUserController {
         return save?R.ok():R.error();
     }
 
+    @ApiOperation(value = "学生||普通用户注册")
+    @PostMapping("/register_common")
+    public R register_common(
+            @ApiParam(name = "user",value = "用户对象")
+            @RequestBody SysUser user
+    ){
+        user.setRole("ROLE_STUDENT");
+        boolean save = sysUserService.save(user);
+        return save?R.ok():R.error();
+    }
+
     @ApiOperation(value = "根据token值获取用户信息")
     @GetMapping("/getToken")
     public R getToken(HttpServletRequest request){
@@ -164,7 +176,7 @@ public class  SysUserController {
             SysUser byId = sysUserService.getById(memberIdByJwtToken);
             return R.ok().data("user", byId);
         }else{
-         return R.error().message("未能找到用户信息").code(21);
+         return R.error().message("无用户信息，使用更多服务请登录").code(21);
         }
     }
 
@@ -188,6 +200,18 @@ public class  SysUserController {
         sysUserLambdaQueryWrapper.eq(SysUser::getRole,role);
         List<SysUser> list = sysUserService.list(sysUserLambdaQueryWrapper);
         return R.ok().data("userlist",list);
+    }
+
+    @ApiOperation(value = "首页老师展示数据")
+    @GetMapping("/getIndexTeacher")
+    @Cacheable(value = "index_teacher",key = "'teacher'")
+    public R getIndexTeacher(){
+        LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        sysUserLambdaQueryWrapper.eq(SysUser::getRole,"ROLE_TEACHER").last("limit 6");
+        List<SysUser> list = sysUserService.list(sysUserLambdaQueryWrapper);
+
+
+        return R.ok().data("teacher",list);
     }
 }
 

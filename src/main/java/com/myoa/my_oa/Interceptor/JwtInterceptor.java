@@ -20,7 +20,7 @@ public class JwtInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 //        String origin = request.getHeader("Origin");
 //// 响应标头指定 指定可以访问资源的URL路径
-//        response.setHeader("Access-Control-Allow-Origin", origin);
+//        response.setHeader("Access-Control-Allow-Origin", "*");
 //        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
 //        response.setHeader("Access-Control-Max-Age", "1800");
 ////  设置  受支持请求标头（自定义  可以访问的请求头  例如：Token）
@@ -31,17 +31,17 @@ public class JwtInterceptor implements HandlerInterceptor {
             System.out.println("放行options");
             return true;
         }
-//        String token = request.getHeader("Authorization");
-//        System.out.println("Authorization=>"+token);
-//        String token2 = request.getHeader("token");
-//        System.out.println("token2=>"+token2);
-//        //如果不是映射到方法直接通过
+        String token = request.getHeader("Authorization");
+        System.out.println("Authorization=>"+token);
+        String token2 = request.getHeader("token");
+        System.out.println("token2=>"+token2);
+        //如果不是映射到方法直接通过
 
         if(!(handler instanceof HandlerMethod)){
             return true;
         }
         //如果没有token直接执行拦截
-        if(JwtUtils.getMemberIdByJwtToken(request)==0){
+        if(JwtUtils.getMemberIdByJwtToken_OSS(  request)==0){
 
             throw  new CustomerException(21,"未登录，无法访问api");
         }

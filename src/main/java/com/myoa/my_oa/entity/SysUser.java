@@ -59,5 +59,7 @@ public class SysUser implements Serializable {
     @ApiModelProperty(value = "角色")
     private String role;
 
+    @ApiModelProperty(value = "介绍")
+    private String description;
 
 }

@@ -17,5 +17,12 @@ spring:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-#oss
+#redis
+redis:
+  port: 6379
+  host: 127.0.0.1
+  database: 0
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1800000
