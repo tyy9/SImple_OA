@@ -19,6 +19,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/my_oa/sys-user/register_common")
                 .excludePathPatterns("/my_oa/sys-user/getToken")
                 .excludePathPatterns("/my_oa/sys-user/getIndexTeacher")
+                .excludePathPatterns("/my_oa/sys-user/getTeacherByCourseId")
                 .excludePathPatterns("/my_oa/course/getIndexCourseData")
                 .excludePathPatterns("/doc.html",
                         "/webjars/**",

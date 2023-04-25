@@ -9,11 +9,19 @@ import com.myoa.my_oa.entity.StudentCourse;
 import com.myoa.my_oa.entity.SysUser;
 import com.myoa.my_oa.service.CourseService;
 import com.myoa.my_oa.service.StudentCourseService;
+import com.myoa.my_oa.service.SysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,13 +38,18 @@ import java.util.List;
 @Api(tags = "课程接口")
 @CrossOrigin
 @RestController
+@Slf4j
 @RequestMapping("/my_oa/course")
 public class CourseController {
     @Autowired
     CourseService courseService;
     @Autowired
     StudentCourseService studentCourseService;
-
+    @Autowired
+    SysUserService sysUserService;
+    @Autowired
+    RedisTemplate redisTemplate;
+    private Logger logger = LoggerFactory.getLogger(CourseController.class);
     @ApiOperation(value = "课程分页查询")
     @PostMapping("/pageCourse/{page}/{limit}")
 
@@ -86,7 +99,8 @@ public class CourseController {
             @ApiParam(name = "course",value = "课程对象")
             @RequestBody  Course  course
     ){
-
+        //先将门户的课程redis缓存删除
+        redisTemplate.delete("index_course::coursedata");
         boolean b = courseService.updateById(course);
         return b?R.ok():R.error();
     }
@@ -116,9 +130,25 @@ public class CourseController {
     @Cacheable(value = "index_course",key = "'coursedata'")
     public R getIndexCourseData(){
         LambdaQueryWrapper<Course> courseLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        //先将门户的课程redis缓存删除
+
         courseLambdaQueryWrapper.last("limit 6");
         List<Course> list = courseService.list(courseLambdaQueryWrapper);
         return R.ok().data("coursedata",list);
+    }
+
+    @ApiOperation(value = "根据教师id获取课程")
+        @PostMapping("/getCourseByUserId/{id}")
+    public R getCourseByUserId(
+            @ApiParam(value = "id",name="用户id")
+            @PathVariable Integer id
+    ){
+
+
+        LambdaQueryWrapper<Course> courseLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        courseLambdaQueryWrapper.eq(Course::getTeacherId,id);
+        List<Course> list = courseService.list(courseLambdaQueryWrapper);
+        return R.ok().data("course",list);
     }
 }
 

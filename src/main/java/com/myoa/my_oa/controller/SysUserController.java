@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.myoa.my_oa.common.R;
 import com.myoa.my_oa.config.JwtUtils;
+import com.myoa.my_oa.entity.Course;
 import com.myoa.my_oa.entity.SysRole;
 import com.myoa.my_oa.entity.SysUser;
 import com.myoa.my_oa.entity.dto.SysMenu_father;
+import com.myoa.my_oa.service.CourseService;
 import com.myoa.my_oa.service.SysRoleService;
 import com.myoa.my_oa.service.SysUserService;
 import io.swagger.annotations.Api;
@@ -40,6 +42,9 @@ public class  SysUserController {
     SysUserService sysUserService;
     @Autowired
     SysRoleService sysRoleService;
+
+    @Autowired
+    CourseService courseService;
     @ApiOperation(value = "查询所有的用户")
     @GetMapping("/findAlluser")
     public R findAll(){
@@ -212,6 +217,18 @@ public class  SysUserController {
 
 
         return R.ok().data("teacher",list);
+    }
+
+    @ApiOperation(value = "根据课程id获取老师信息")
+    @PostMapping("/getTeacherByCourseId/{id}")
+    public R getTeacherByCourseId(
+            @ApiParam(value = "id",name = "课程id")
+            @PathVariable Integer id
+    ){
+        Course byId = courseService.getById(id);
+        Integer teacherId = byId.getTeacherId();
+        SysUser teacher  = sysUserService.getById(teacherId);
+        return  R.ok().data("teacher",teacher);
     }
 }
 
