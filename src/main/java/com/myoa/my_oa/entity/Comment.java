@@ -47,4 +47,7 @@ public class Comment implements Serializable {
     @ApiModelProperty(value = "创建时间")
     private Date gmtCreate;
 
+
+    @ApiModelProperty(value = "回复评论的id")
+    private Integer replyId;
 }

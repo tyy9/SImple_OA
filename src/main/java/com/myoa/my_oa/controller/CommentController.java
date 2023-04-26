@@ -14,6 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @RequestMapping("/my_oa/comment")
+@Slf4j
 public class CommentController {
     @Autowired
     CommentService commentService;
@@ -47,7 +49,7 @@ public class CommentController {
             @PathVariable int page,
             @ApiParam(name = "limit",value = "最大显示数",required = true)
             @PathVariable int limit,
-            @ApiParam(name = "comment",value = "课程对象")
+            @ApiParam(name = "comment",value = "评论对象")
             @RequestBody(required = false) Comment comment
     ){
         Page<Comment> commentPage = new Page<>(page,limit);
@@ -60,23 +62,88 @@ public class CommentController {
         long total = commentPage.getTotal();
         List<CommentDto> commentDtoList=new ArrayList<>();
         for(Comment c:records){
+            //获取评论用户
             SysUser sysUser = sysUserService.getById(c.getUserId());
-            if(sysUser!=null    ){
+            //获取回复用户
+            Comment replycomment = commentService.getById(c.getReplyId());
+            if(sysUser!=null ){
                 String username = sysUser.getUsername();
                 String avatarUrl = sysUser.getAvatarUrl();
+
                 CommentDto commentDto = new CommentDto();
+                //----------------------
                 commentDto.setContent(c.getContent());
                 commentDto.setGmtCreate(c.getGmtCreate());
                 commentDto.setUsername(username);
                 commentDto.setAvatarUrl(avatarUrl);
                 commentDto.setUserId(c.getUserId());
                 commentDto.setId(c.getId());
+                if(replycomment!=null){
+                    log.info("reply=>",replycomment);
+                    commentDto.setReply_content(replycomment.getContent());
+                    SysUser replyuser= sysUserService.getById(replycomment.getUserId());
+                    String reply_username = replyuser.getUsername();
+                    commentDto.setReplyuser_username(reply_username);
+                }
+                //----------------------
                 commentDtoList.add(commentDto);
             }
 
         }
         return R.ok().data("comment",commentDtoList).data("total",total);
     }
+
+    @ApiOperation(value = "教师评论分页查询")
+    @PostMapping("/pageTeacher_Course/{page}/{limit}")
+    public R pageTeacher_Course(
+            @ApiParam(name = "page",value = "当前页数",required = true)
+            @PathVariable int page,
+            @ApiParam(name = "limit",value = "最大显示数",required = true)
+            @PathVariable int limit,
+            @ApiParam(name = "comment",value = "评论对象")
+            @RequestBody(required = false) Comment comment
+    ){
+        Page<Comment> commentPage = new Page<>(page,limit);
+        LambdaQueryWrapper<Comment> commentLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        commentLambdaQueryWrapper.isNull(Comment::getCourseId)
+                .eq(Comment::getTeacherId,comment.getTeacherId())
+                .orderByDesc(Comment::getGmtCreate);
+        commentService.page(commentPage,commentLambdaQueryWrapper);
+        List<Comment> records = commentPage.getRecords();
+        long total = commentPage.getTotal();
+        List<CommentDto> commentDtoList=new ArrayList<>();
+        for(Comment c:records){
+            //获取评论用户
+            SysUser sysUser = sysUserService.getById(c.getUserId());
+            //获取回复用户
+            Comment replycomment = commentService.getById(c.getReplyId());
+            if(sysUser!=null ){
+                String username = sysUser.getUsername();
+                String avatarUrl = sysUser.getAvatarUrl();
+
+                CommentDto commentDto = new CommentDto();
+                //----------------------
+                commentDto.setContent(c.getContent());
+                commentDto.setGmtCreate(c.getGmtCreate());
+                commentDto.setUsername(username);
+                commentDto.setAvatarUrl(avatarUrl);
+                commentDto.setUserId(c.getUserId());
+                commentDto.setId(c.getId());
+                if(replycomment!=null){
+                    log.info("reply=>",replycomment);
+                    commentDto.setReply_content(replycomment.getContent());
+                    SysUser replyuser= sysUserService.getById(replycomment.getUserId());
+                    String reply_username = replyuser.getUsername();
+                    commentDto.setReplyuser_username(reply_username);
+                }
+                //----------------------
+                commentDtoList.add(commentDto);
+            }
+
+        }
+        return R.ok().data("comment",commentDtoList).data("total",total);
+    }
+
 
 
 

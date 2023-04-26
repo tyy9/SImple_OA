@@ -30,6 +30,12 @@ public class CommentDto {
     @ApiModelProperty(value = "评论用户id")
     private Integer userId;
 
+    @ApiModelProperty(value = "回复用户的名字")
+    private String replyuser_username;
+
+    @ApiModelProperty(value = "回复用户的评论内容")
+    private String reply_content;
+
     @TableField(fill = FieldFill.INSERT)
     @ApiModelProperty(value = "创建时间")
     private Date gmtCreate;
