@@ -64,6 +64,7 @@ public class CourseController {
         Page<Course> coursePage = new Page<>(page,limit);
         LambdaQueryWrapper<Course> courseLambdaQueryWrapper = new LambdaQueryWrapper<>();
         courseLambdaQueryWrapper.like(!StringUtils.isEmpty(course.getName()),Course::getName,course.getName())
+                .eq(!StringUtils.isEmpty(course.getSubjectParentid()),Course::getSubjectParentid,course.getSubjectParentid())
                 .orderByDesc(Course::getId);
         courseService.page(coursePage,courseLambdaQueryWrapper);
         long total = coursePage.getTotal();
@@ -125,6 +126,7 @@ public class CourseController {
         return b?R.ok():R.error();
     }
 
+
     @ApiOperation(value = "首页课程显示数据")
     @GetMapping("/getIndexCourseData")
     @Cacheable(value = "index_course",key = "'coursedata'")
@@ -150,5 +152,8 @@ public class CourseController {
         List<Course> list = courseService.list(courseLambdaQueryWrapper);
         return R.ok().data("course",list);
     }
+
+
+
 }
 

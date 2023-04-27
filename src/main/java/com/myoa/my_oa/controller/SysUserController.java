@@ -65,6 +65,7 @@ public class  SysUserController {
         Page<SysUser> sysUserPage = new Page<>(page,limit);
         LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
         sysUserLambdaQueryWrapper.like(!StringUtils.isEmpty(sysUser.getUsername()),SysUser::getUsername,sysUser.getUsername())
+                .eq(!StringUtils.isEmpty(sysUser.getRole()),SysUser::getRole,sysUser.getRole())
                 .orderByDesc(SysUser::getId);
         sysUserService.page(sysUserPage,sysUserLambdaQueryWrapper);
         long total = sysUserPage.getTotal();
