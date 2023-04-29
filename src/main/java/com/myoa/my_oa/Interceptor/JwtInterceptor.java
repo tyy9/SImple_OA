@@ -41,7 +41,7 @@ public class JwtInterceptor implements HandlerInterceptor {
             return true;
         }
         //如果没有token直接执行拦截
-        if(JwtUtils.getMemberIdByJwtToken_OSS(  request)==0){
+        if(JwtUtils.getMemberIdByJwtToken_OSS(request)==0){
 
             throw  new CustomerException(21,"未登录，无法访问api");
         }

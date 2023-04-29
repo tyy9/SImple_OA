@@ -14,6 +14,27 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+    #------------------------
+    #rabbitmq
+  rabbitmq:
+    host: localhost
+      port: 5672
+      username: tyy9
+      password: lx20010706
+      virtual-host: /test
+      connection-timeout: 15000
+      listener:
+        simple:
+          #        # 每次从RabbitMQ获取的消息数量
+          #        prefetch: 1
+          default-requeue-rejected: false
+          #        # 每个队列启动的消费者数量
+          #        concurrency: 1
+          #        # 每个队列最大的消费者数量
+          #        max-concurrency: 1
+          # 签收模式为手动签收-那么需要在代码中手动ACK
+          acknowledge-mode: manual
+    #------------------------
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
