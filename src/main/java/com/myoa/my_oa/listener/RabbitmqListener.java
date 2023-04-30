@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,18 +19,49 @@ import java.io.IOException;
 public class RabbitmqListener {
     @Autowired
     CourseOrderService courseOrderService;
+    @Autowired
+    RedisTemplate redisTemplate;
+
+    @RabbitListener(queues = "user-queue")
+    public void user_listener(String s_courseOrder, Message message, Channel channel) throws IOException {
+        JSONObject jsonObject = JSON.parseObject(s_courseOrder);
+        CourseOrder tmp_courseOrder = jsonObject.toJavaObject(CourseOrder.class);
+        //从sql里找数据对比
+        CourseOrder courseOrder = courseOrderService.getById(tmp_courseOrder);
+        if(!courseOrder.getStatus()){
+            log.info("用户:"+courseOrder.getId());
+            log.info("发现购买状态仍为未购买状态，重新放入队列");
+            log.info("courseOrder=>"+courseOrder.getStatus());
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(),false,true);
+        }else{
+            log.info("发现购买状态为购买状态，ack");
+            log.info("courseOrder=>"+courseOrder.getStatus());
+            redisTemplate.delete("order_detail"+courseOrder.getId());
+            courseOrder.setTime(false);
+            courseOrderService.updateById(courseOrder);
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
+        log.info("用户队列",courseOrder);
+    }
     @RabbitListener(queues = "dl-queue")
     public void dl_listener(String s_courseOrder, Message message, Channel channel) throws IOException {
         JSONObject jsonObject = JSON.parseObject(s_courseOrder);
-        CourseOrder courseOrder = jsonObject.toJavaObject(CourseOrder.class);
+        CourseOrder tmp_courseOrder = jsonObject.toJavaObject(CourseOrder.class);
+        CourseOrder courseOrder = courseOrderService.getById(tmp_courseOrder);
+        log.info("死信列表",courseOrder);
         if(!courseOrder.getStatus()){
-            log.info("发现购买状态仍为未购买状态，ack并删除sql数据");
+            log.info("courseOrder=>"+courseOrder.getStatus());
+            log.info("发现购买状态仍为未购买状态，ack并删除sql数据和redis数据");
+            redisTemplate.delete("order_detail"+courseOrder.getId());
             courseOrderService.removeById(courseOrder.getId());
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }else{
             log.info("发现购买状态为购买状态，ack并删除记录");
+            redisTemplate.delete("order_detail"+courseOrder.getId());
+            courseOrder.setTime(false);
+            courseOrderService.updateById(courseOrder);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
-        log.info("死信列表",courseOrder);
+
     }
 }

@@ -54,7 +54,7 @@ public class Rabbitconfig {
                 .nonDurable("user-queue")
                 .deadLetterExchange("dlx.direct")   //指定死信交换机
                 .deadLetterRoutingKey("dl-key")
-                .ttl(10*60000)
+                .ttl(500*1000)
                 .build();
     }
 }
