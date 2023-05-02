@@ -167,6 +167,7 @@ public class  SysUserController {
         return save?R.ok():R.error();
     }
 
+
     @ApiOperation(value = "根据token值获取用户信息")
     @GetMapping("/getToken")
     public R getToken(HttpServletRequest request){

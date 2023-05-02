@@ -20,10 +20,18 @@ spring:
     password: lx20010706
     virtual-host: /demo
     connection-timeout: 15000
+    # 发送确认
+    publisher-confirm-type: correlated
+    # 路由失败回调
+    publisher-returns: true
+    template:
+      mandatory: true
+    # 必须设置成true 消息路由失败通知监听者，而不是将消息丢弃
+
     listener:
       simple:
-        #        # 每次从RabbitMQ获取的消息数量
-        #        prefetch: 1
+#                #
+        prefetch: 1
         default-requeue-rejected: false
         #        # 每个队列启动的消费者数量
         #        concurrency: 1
@@ -31,6 +39,8 @@ spring:
         #        max-concurrency: 1
         # 签收模式为手动签收-那么需要在代码中手动ACK
         acknowledge-mode: manual
+#        max-concurrency: 1
+
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -43,3 +53,7 @@ redis:
     type: redis
     redis:
       time-to-live: 1800000
+#配置日志目录
+logging:
+  file:
+    path: D:\

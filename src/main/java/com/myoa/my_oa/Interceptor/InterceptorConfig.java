@@ -21,12 +21,16 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/my_oa/sys-user/getIndexTeacher")
                 .excludePathPatterns("/my_oa/sys-user/getTeacherByCourseId/**")
                 .excludePathPatterns("/my_oa/sys-user/findUserById/**")
+                .excludePathPatterns("/my_oa/sys-user/pageUser/**")
                 .excludePathPatterns("/my_oa/course/getIndexCourseData")
                 .excludePathPatterns("/my_oa/course/findCourseById/**")
                 .excludePathPatterns("/my_oa/course/getCourseByUserId/**")
+                .excludePathPatterns("/my_oa/course/pageCourse/**")
                 .excludePathPatterns("/my_oa/subject/findSubjectById/**")
+                .excludePathPatterns("/my_oa/subject/getAllSubject/**")
                 .excludePathPatterns("/my_oa/comment/pageComment_Course/**")
                 .excludePathPatterns("/my_oa/comment/pageTeacher_Course/**")
+                .excludePathPatterns("/my_oa/course-order/PageUserOrder/**")
                 .excludePathPatterns("/doc.html",
                         "/webjars/**",
                         "/swagger-resources",

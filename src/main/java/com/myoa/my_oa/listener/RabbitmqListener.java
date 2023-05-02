@@ -3,6 +3,7 @@ package com.myoa.my_oa.listener;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.myoa.my_oa.entity.CourseOrder;
+import com.myoa.my_oa.exception.CustomerException;
 import com.myoa.my_oa.service.CourseOrderService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -28,35 +29,47 @@ public class RabbitmqListener {
         CourseOrder tmp_courseOrder = jsonObject.toJavaObject(CourseOrder.class);
         //从sql里找数据对比
         CourseOrder courseOrder = courseOrderService.getById(tmp_courseOrder);
-        if(!courseOrder.getStatus()){
-            log.info("用户:"+courseOrder.getId());
+        if(courseOrder==null){
+            log.info("已经取消订单，ack并删除redis数据");
+            redisTemplate.delete("order_detail"+tmp_courseOrder.getId());
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
+        else if(!courseOrder.getStatus()){
+            log.info("订单:"+courseOrder.getId());
             log.info("发现购买状态仍为未购买状态，重新放入队列");
             log.info("courseOrder=>"+courseOrder.getStatus());
             channel.basicNack(message.getMessageProperties().getDeliveryTag(),false,true);
         }else{
-            log.info("发现购买状态为购买状态，ack");
+            log.info("发现购买状态为购买状态或已经取消订单，ack");
             log.info("courseOrder=>"+courseOrder.getStatus());
             redisTemplate.delete("order_detail"+courseOrder.getId());
             courseOrder.setTime(false);
             courseOrderService.updateById(courseOrder);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+
         }
         log.info("用户队列",courseOrder);
     }
     @RabbitListener(queues = "dl-queue")
-    public void dl_listener(String s_courseOrder, Message message, Channel channel) throws IOException {
+    public void dl_listener(String s_courseOrder, Message message, Channel channel) throws IOException{
         JSONObject jsonObject = JSON.parseObject(s_courseOrder);
         CourseOrder tmp_courseOrder = jsonObject.toJavaObject(CourseOrder.class);
         CourseOrder courseOrder = courseOrderService.getById(tmp_courseOrder);
         log.info("死信列表",courseOrder);
-        if(!courseOrder.getStatus()){
+        if(courseOrder==null){
+            log.info("已经取消订单，ack并删除redis数据");
+            redisTemplate.delete("order_detail"+tmp_courseOrder.getId());
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
+        else if(!courseOrder.getStatus()){
             log.info("courseOrder=>"+courseOrder.getStatus());
             log.info("发现购买状态仍为未购买状态，ack并删除sql数据和redis数据");
             redisTemplate.delete("order_detail"+courseOrder.getId());
             courseOrderService.removeById(courseOrder.getId());
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+            throw new CustomerException(20000,"你有订单在限定时间内仍未付款自动取消或订单处理列表已满时仍未付款");
         }else{
-            log.info("发现购买状态为购买状态，ack并删除记录");
+            log.info("发现购买状态为购买状态或已经取消订单，ack并删除redis数据");
             redisTemplate.delete("order_detail"+courseOrder.getId());
             courseOrder.setTime(false);
             courseOrderService.updateById(courseOrder);
