@@ -67,6 +67,7 @@ public class  SysUserController {
         LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
         sysUserLambdaQueryWrapper.like(!StringUtils.isEmpty(sysUser.getUsername()),SysUser::getUsername,sysUser.getUsername())
                 .eq(!StringUtils.isEmpty(sysUser.getRole()),SysUser::getRole,sysUser.getRole())
+                .eq(!StringUtils.isEmpty(sysUser.getStatus()),SysUser::getStatus,sysUser.getStatus())
                 .orderByDesc(SysUser::getId);
         sysUserService.page(sysUserPage,sysUserLambdaQueryWrapper);
         long total = sysUserPage.getTotal();
@@ -152,6 +153,7 @@ public class  SysUserController {
             @RequestBody SysUser user
     ){
         user.setPassword(MD5.encrypt(user.getPassword()));
+        user.setStatus(false);
         boolean save = sysUserService.save(user);
         return save?R.ok():R.error();
     }
@@ -231,6 +233,15 @@ public class  SysUserController {
         Integer teacherId = byId.getTeacherId();
         SysUser teacher  = sysUserService.getById(teacherId);
         return  R.ok().data("teacher",teacher);
+    }
+
+    @ApiOperation(value = "获取待审核通过的用户数量")
+    @GetMapping("/getUnpass_UserCount")
+    public R getUnpass_UserCount(){
+        LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        sysUserLambdaQueryWrapper.eq(SysUser::getStatus,false);
+        int count = sysUserService.count(sysUserLambdaQueryWrapper);
+        return  R.ok().data("count",count);
     }
 }
 

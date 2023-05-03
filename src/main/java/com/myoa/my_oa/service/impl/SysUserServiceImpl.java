@@ -50,15 +50,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         System.out.println(MD5.encrypt(user.getPassword()));
         LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
         sysUserLambdaQueryWrapper.eq(SysUser::getUsername,user.getUsername())
+                .eq(SysUser::getStatus,true)
                 .eq(SysUser::getPassword,MD5.encrypt(user.getPassword()))
                 .eq(SysUser::getRole,user.getRole());
+
         SysUser one = this.getOne(sysUserLambdaQueryWrapper);
         if(one!=null){
             String token=JwtUtils.getJwtToken(one.getId(),one.getUsername());
 
             return token;
         }else{
-            throw new CustomerException(20000,"登录失败，请检查你的用户名,密码与权限");
+            throw new CustomerException(20000,"登录失败，请检查你的用户名,密码与权限,如果有冻结嫌疑请联系管理员");
         }
     }
 
@@ -114,6 +116,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 sysUser.setPassword(encrypt);
                 sysUser.setNickname(nickname);
                 sysUser.setRole("ROLE_STUDENT");
+                sysUser.setStatus(true);
                 boolean save = this.save(sysUser);
                 return save;
 

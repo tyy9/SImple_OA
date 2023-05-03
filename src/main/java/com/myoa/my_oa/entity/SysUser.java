@@ -1,11 +1,9 @@
 package com.myoa.my_oa.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.util.Date;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -63,6 +61,10 @@ public class SysUser implements Serializable {
     private String description;
 
     @ApiModelProperty(value = "账号激活状态")
-    private boolean state;
+    private Boolean status;
+
+    @TableLogic
+    @ApiModelProperty(value = "是否删除")
+    private Boolean isDeleted;
 
 }

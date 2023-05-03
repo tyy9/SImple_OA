@@ -57,40 +57,13 @@ public class CommentController {
         commentLambdaQueryWrapper.isNull(Comment::getTeacherId)
                 .eq(Comment::getCourseId,comment.getCourseId())
                 .orderByDesc(Comment::getGmtCreate);
+
         commentService.page(commentPage,commentLambdaQueryWrapper);
         List<Comment> records = commentPage.getRecords();
         long total = commentPage.getTotal();
-        List<CommentDto> commentDtoList=new ArrayList<>();
-        for(Comment c:records){
-            //获取评论用户
-            SysUser sysUser = sysUserService.getById(c.getUserId());
-            //获取回复用户
-            Comment replycomment = commentService.getById(c.getReplyId());
-            if(sysUser!=null ){
-                String username = sysUser.getUsername();
-                String avatarUrl = sysUser.getAvatarUrl();
+        List<CommentDto> commentDtoList1 = commentService.commentPage(records);
 
-                CommentDto commentDto = new CommentDto();
-                //----------------------
-                commentDto.setContent(c.getContent());
-                commentDto.setGmtCreate(c.getGmtCreate());
-                commentDto.setUsername(username);
-                commentDto.setAvatarUrl(avatarUrl);
-                commentDto.setUserId(c.getUserId());
-                commentDto.setId(c.getId());
-                if(replycomment!=null){
-                    log.info("reply=>",replycomment);
-                    commentDto.setReply_content(replycomment.getContent());
-                    SysUser replyuser= sysUserService.getById(replycomment.getUserId());
-                    String reply_username = replyuser.getUsername();
-                    commentDto.setReplyuser_username(reply_username);
-                }
-                //----------------------
-                commentDtoList.add(commentDto);
-            }
-
-        }
-        return R.ok().data("comment",commentDtoList).data("total",total);
+        return R.ok().data("comment",commentDtoList1).data("total",total);
     }
 
     @ApiOperation(value = "教师评论分页查询")
@@ -111,36 +84,8 @@ public class CommentController {
         commentService.page(commentPage,commentLambdaQueryWrapper);
         List<Comment> records = commentPage.getRecords();
         long total = commentPage.getTotal();
-        List<CommentDto> commentDtoList=new ArrayList<>();
-        for(Comment c:records){
-            //获取评论用户
-            SysUser sysUser = sysUserService.getById(c.getUserId());
-            //获取回复用户
-            Comment replycomment = commentService.getById(c.getReplyId());
-            if(sysUser!=null ){
-                String username = sysUser.getUsername();
-                String avatarUrl = sysUser.getAvatarUrl();
+        List<CommentDto> commentDtoList = commentService.commentPage(records);
 
-                CommentDto commentDto = new CommentDto();
-                //----------------------
-                commentDto.setContent(c.getContent());
-                commentDto.setGmtCreate(c.getGmtCreate());
-                commentDto.setUsername(username);
-                commentDto.setAvatarUrl(avatarUrl);
-                commentDto.setUserId(c.getUserId());
-                commentDto.setId(c.getId());
-                if(replycomment!=null){
-                    log.info("reply=>",replycomment);
-                    commentDto.setReply_content(replycomment.getContent());
-                    SysUser replyuser= sysUserService.getById(replycomment.getUserId());
-                    String reply_username = replyuser.getUsername();
-                    commentDto.setReplyuser_username(reply_username);
-                }
-                //----------------------
-                commentDtoList.add(commentDto);
-            }
-
-        }
         return R.ok().data("comment",commentDtoList).data("total",total);
     }
 
