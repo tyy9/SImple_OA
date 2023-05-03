@@ -12,6 +12,7 @@ import com.myoa.my_oa.entity.dto.SysMenu_father;
 import com.myoa.my_oa.service.CourseService;
 import com.myoa.my_oa.service.SysRoleService;
 import com.myoa.my_oa.service.SysUserService;
+import com.myoa.my_oa.utils.MD5;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
@@ -101,7 +102,6 @@ public class  SysUserController {
             @ApiParam(name = "user",value = "用户对象")
             @RequestBody  SysUser sysUser
     ){
-
         boolean b = sysUserService.updateById(sysUser);
         return b?R.ok():R.error();
     }
@@ -151,7 +151,7 @@ public class  SysUserController {
             @ApiParam(name = "user",value = "用户对象")
             @RequestBody SysUser user
     ){
-        user.setRole("ROLE_ADMIN");
+        user.setPassword(MD5.encrypt(user.getPassword()));
         boolean save = sysUserService.save(user);
         return save?R.ok():R.error();
     }

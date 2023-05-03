@@ -31,6 +31,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/my_oa/comment/pageComment_Course/**")
                 .excludePathPatterns("/my_oa/comment/pageTeacher_Course/**")
                 .excludePathPatterns("/my_oa/course-order/PageUserOrder/**")
+                .excludePathPatterns("/my_oa/index/**")
+                .excludePathPatterns("/my_oa/sys-role/getAllRole")
                 .excludePathPatterns("/doc.html",
                         "/webjars/**",
                         "/swagger-resources",

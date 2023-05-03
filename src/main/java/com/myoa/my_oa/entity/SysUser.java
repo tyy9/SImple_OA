@@ -62,4 +62,7 @@ public class SysUser implements Serializable {
     @ApiModelProperty(value = "介绍")
     private String description;
 
+    @ApiModelProperty(value = "账号激活状态")
+    private boolean state;
+
 }

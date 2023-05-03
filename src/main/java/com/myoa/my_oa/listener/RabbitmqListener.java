@@ -2,9 +2,11 @@ package com.myoa.my_oa.listener;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.myoa.my_oa.entity.Course;
 import com.myoa.my_oa.entity.CourseOrder;
 import com.myoa.my_oa.exception.CustomerException;
 import com.myoa.my_oa.service.CourseOrderService;
+import com.myoa.my_oa.service.CourseService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -22,6 +24,9 @@ public class RabbitmqListener {
     CourseOrderService courseOrderService;
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    CourseService courseService;
 
     @RabbitListener(queues = "user-queue")
     public void user_listener(String s_courseOrder, Message message, Channel channel) throws IOException {
@@ -45,6 +50,9 @@ public class RabbitmqListener {
             redisTemplate.delete("order_detail"+courseOrder.getId());
             courseOrder.setTime(false);
             courseOrderService.updateById(courseOrder);
+            Course course = courseService.getById(courseOrder.getCourseId());
+            course.setBuycount(course.getBuycount()+1);
+            courseService.updateById(course);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
 
         }
@@ -73,6 +81,9 @@ public class RabbitmqListener {
             redisTemplate.delete("order_detail"+courseOrder.getId());
             courseOrder.setTime(false);
             courseOrderService.updateById(courseOrder);
+            Course course = courseService.getById(courseOrder.getCourseId());
+            course.setBuycount(course.getBuycount()+1);
+            courseService.updateById(course);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
 

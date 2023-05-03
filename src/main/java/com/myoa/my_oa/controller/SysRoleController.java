@@ -49,6 +49,14 @@ public class SysRoleController {
         List<SysRole> records = sysRolePage.getRecords();
         return R.ok().data("total",total).data("data",records);
     }
+    @ApiOperation(value = "获取所有角色")
+    @GetMapping("/getAllRole")
+    public R getAllRole(
+    ){
+        List<SysRole> list = sysRoleService.list();
+        return R.ok().data("data",list);
+    }
+
 
     @ApiOperation(value = "新增角色")
     @PostMapping("/addRole")

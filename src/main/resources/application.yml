@@ -31,7 +31,7 @@ spring:
     listener:
       simple:
 #                #
-        prefetch: 1
+        prefetch: 2
         default-requeue-rejected: false
         #        # 每个队列启动的消费者数量
         #        concurrency: 1
@@ -56,4 +56,4 @@ redis:
 #配置日志目录
 logging:
   file:
-    path: D:\
+    path: D:\mylog

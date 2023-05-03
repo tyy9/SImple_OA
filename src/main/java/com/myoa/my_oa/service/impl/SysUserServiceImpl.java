@@ -6,6 +6,7 @@ import com.myoa.my_oa.entity.SysMenu;
 import com.myoa.my_oa.entity.SysRole;
 import com.myoa.my_oa.entity.SysRoleMenu;
 import com.myoa.my_oa.entity.SysUser;
+import com.myoa.my_oa.entity.dto.IndexLoginDto;
 import com.myoa.my_oa.entity.dto.SysMenu_father;
 import com.myoa.my_oa.exception.CustomerException;
 import com.myoa.my_oa.mapper.SysUserMapper;
@@ -14,7 +15,9 @@ import com.myoa.my_oa.service.SysRoleMenuService;
 import com.myoa.my_oa.service.SysRoleService;
 import com.myoa.my_oa.service.SysUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.myoa.my_oa.utils.MD5;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,18 +42,23 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Autowired
     SysMenuService sysMenuService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
     @Override
     public String Login(SysUser user) {
+        System.out.println(MD5.encrypt(user.getPassword()));
         LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
         sysUserLambdaQueryWrapper.eq(SysUser::getUsername,user.getUsername())
-                .eq(SysUser::getPassword,user.getPassword());
+                .eq(SysUser::getPassword,MD5.encrypt(user.getPassword()))
+                .eq(SysUser::getRole,user.getRole());
         SysUser one = this.getOne(sysUserLambdaQueryWrapper);
         if(one!=null){
             String token=JwtUtils.getJwtToken(one.getId(),one.getUsername());
 
             return token;
         }else{
-            throw new CustomerException(20000,"登录失败，请检查你的用户名与密码");
+            throw new CustomerException(20000,"登录失败，请检查你的用户名,密码与权限");
         }
     }
 
@@ -88,5 +96,32 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         return rolemenu_total;
+    }
+
+    @Override
+    public boolean register_student(IndexLoginDto indexLoginDto) {
+        String username = indexLoginDto.getUsername();
+        String nickname = indexLoginDto.getNickname();
+        String password = indexLoginDto.getPassword();
+        Integer code = indexLoginDto.getCode();
+        if(username!=null&&nickname!=null&&password!=null){
+            Integer code_redis =(Integer) redisTemplate.opsForValue().get("code" + username);
+            System.out.println(code_redis);
+            if(code_redis.equals(code)){
+                String encrypt = MD5.encrypt(password);
+                SysUser sysUser = new SysUser();
+                sysUser.setUsername(username);
+                sysUser.setPassword(encrypt);
+                sysUser.setNickname(nickname);
+                sysUser.setRole("ROLE_STUDENT");
+                boolean save = this.save(sysUser);
+                return save;
+
+            }else{
+                throw new CustomerException(20000,"验证码错误");
+            }
+        }else {
+            throw new CustomerException(20000,"必填项不可为空");
+        }
     }
 }

@@ -26,7 +26,7 @@ public class IndexLoginDto implements Serializable {
     private String nickname;
 
     @ApiModelProperty(value = "验证码")
-    private String code;
+    private Integer code;
 
 
 
