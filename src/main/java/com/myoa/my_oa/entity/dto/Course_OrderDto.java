@@ -27,6 +27,9 @@ public class Course_OrderDto implements Serializable {
     @ApiModelProperty(value = "用户id")
     private Integer userId;
 
+    @ApiModelProperty(value = "用户名")
+    private String username;
+
     @ApiModelProperty(value = "购买的课程id")
     private Integer courseId;
 

@@ -153,6 +153,12 @@ public class CourseController {
         return R.ok().data("course",list);
     }
 
+    @ApiOperation(value = "查询所有的课程")
+    @GetMapping("/findAllCourse")
+    public R findAllCourse(){
+        List<Course> list = courseService.list(null);
+        return R.ok().data("data",list);
+    }
 
 
 }
