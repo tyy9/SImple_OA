@@ -107,6 +107,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         String password = indexLoginDto.getPassword();
         Integer code = indexLoginDto.getCode();
         if(username!=null&&nickname!=null&&password!=null){
+            //检测重复
+            LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            sysUserLambdaQueryWrapper.eq(SysUser::getUsername,username);
+            SysUser one = this.getOne(sysUserLambdaQueryWrapper);
+            if(one!=null){
+                throw new CustomerException(20000,"用户名已被使用");
+            }
             Integer code_redis =(Integer) redisTemplate.opsForValue().get("code" + username);
             System.out.println(code_redis);
             if(code_redis.equals(code)){

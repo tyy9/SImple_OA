@@ -1,15 +1,22 @@
 package com.myoa.my_oa.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.myoa.my_oa.common.R;
 import com.myoa.my_oa.entity.Course;
+import com.myoa.my_oa.entity.CourseOrder;
 import com.myoa.my_oa.entity.StudentCourse;
 import com.myoa.my_oa.entity.SysUser;
+import com.myoa.my_oa.exception.CustomerException;
+import com.myoa.my_oa.mapper.CourseMapper;
+import com.myoa.my_oa.service.CourseOrderService;
 import com.myoa.my_oa.service.CourseService;
 import com.myoa.my_oa.service.StudentCourseService;
 import com.myoa.my_oa.service.SysUserService;
+import com.myoa.my_oa.utils.PageUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -25,6 +32,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,11 +57,16 @@ public class CourseController {
     SysUserService sysUserService;
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    CourseOrderService courseOrderService;
+
+
     private Logger logger = LoggerFactory.getLogger(CourseController.class);
     @ApiOperation(value = "课程分页查询")
     @PostMapping("/pageCourse/{page}/{limit}")
 
-    public R pageUser(
+    public R pageCourse(
             @ApiParam(name = "page",value = "当前页数",required = true)
             @PathVariable int page,
             @ApiParam(name = "limit",value = "最大显示数",required = true)
@@ -71,6 +84,34 @@ public class CourseController {
         List<Course> records = coursePage.getRecords();
         return R.ok().data("total",total).data("data",records);
     }
+    @ApiOperation(value = "根据课程id查询学生分页查询")
+        @PostMapping("/pageuserByCourseId/{page}/{limit}/{id}")
+    public R pageuserByCourseId(
+            @ApiParam(name = "page",value = "当前页数",required = true)
+            @PathVariable int page,
+            @ApiParam(name = "limit",value = "最大显示数",required = true)
+            @PathVariable int limit,
+            @ApiParam(name = "id",value = "课程id")
+            @PathVariable Integer id
+    ){
+
+        LambdaQueryWrapper<CourseOrder> courseOrderLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        courseOrderLambdaQueryWrapper.eq(CourseOrder::getCourseId,id);
+        List<CourseOrder> list = courseOrderService.list(courseOrderLambdaQueryWrapper);
+        if (list.size() > 0) {
+            List<SysUser> sysUserList = new ArrayList<>();
+            for(CourseOrder c:list){
+                SysUser sysUser = sysUserService.getById(c.getUserId());
+                sysUserList.add(sysUser);
+            }
+            Page page1 = PageUtils.getPage(page, limit, sysUserList);
+            return R.ok().data("total",page1.getTotal()).data("data",page1.getRecords());
+        }else{
+            throw new CustomerException(20000,"没有学生购买过此课程");
+        }
+
+    }
+
 
     @ApiOperation(value = "新增课程")
     @PostMapping("/addCourse")

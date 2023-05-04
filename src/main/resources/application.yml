@@ -33,13 +33,19 @@ spring:
 #                #
         prefetch: 2
         default-requeue-rejected: false
-        #        # 每个队列启动的消费者数量
-        #        concurrency: 1
-        #        # 每个队列最大的消费者数量
-        #        max-concurrency: 1
         # 签收模式为手动签收-那么需要在代码中手动ACK
         acknowledge-mode: manual
-#        max-concurrency: 1
+        concurrency: 1
+        max-concurrency: 1
+        retry:
+          enabled: true
+          initial-interval: 1000
+            # 失败的等待时长倍数，下次等待时长 = multiplier * last-interval
+          multiplier: 3
+            # 最大重试次数
+          max-attempts: 4
+            # true无状态；false有状态。如果业务中包含事务，这里改为false
+          stateless: true
 
 mybatis-plus:
   configuration:

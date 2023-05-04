@@ -55,7 +55,6 @@
                     .deadLetterExchange("dlx.direct")   //指定死信交换机
                     .deadLetterRoutingKey("dl-key")
                     .ttl(1000*60*5)
-                    .maxLength(1)
                     .build();
         }
     }

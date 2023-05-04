@@ -43,7 +43,7 @@ public class RabbitmqListener {
             log.info("订单:"+courseOrder.getId());
             log.info("发现购买状态仍为未购买状态，重新放入队列");
             log.info("courseOrder=>"+courseOrder.getStatus());
-            channel.basicNack(message.getMessageProperties().getDeliveryTag(),false,true);
+            channel.basicReject(message.getMessageProperties().getDeliveryTag(),true);
         }else{
             log.info("发现购买状态为购买状态或已经取消订单，ack");
             log.info("courseOrder=>"+courseOrder.getStatus());
@@ -51,7 +51,9 @@ public class RabbitmqListener {
             courseOrder.setTime(false);
             courseOrderService.updateById(courseOrder);
             Course course = courseService.getById(courseOrder.getCourseId());
-            course.setBuycount(course.getBuycount()+1);
+            log.info("存量=>"+course.getId());
+            Long buycount = course.getBuycount();
+            course.setBuycount(++buycount);
             courseService.updateById(course);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
 
@@ -73,6 +75,15 @@ public class RabbitmqListener {
             log.info("courseOrder=>"+courseOrder.getStatus());
             log.info("发现购买状态仍为未购买状态，ack并删除sql数据和redis数据");
             redisTemplate.delete("order_detail"+courseOrder.getId());
+            Course course = courseService.getById(courseOrder.getCourseId());
+            Long r = course.getBuycount();
+            if(r==0){
+                course.setBuycount(0L);
+                courseService.updateById(course);
+            }else{
+                course.setBuycount(r-1);
+                courseService.updateById(course);
+            }
             courseOrderService.removeById(courseOrder.getId());
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
             throw new CustomerException(20000,"你有订单在限定时间内仍未付款自动取消或订单处理列表已满时仍未付款");
