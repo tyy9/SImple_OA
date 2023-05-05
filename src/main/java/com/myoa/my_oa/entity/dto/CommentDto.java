@@ -24,14 +24,23 @@ public class CommentDto {
     @ApiModelProperty(value = "评论用户名字")
     private String username;
 
+    @ApiModelProperty(value = "评论用户别名")
+    private String nickname;
+
     @ApiModelProperty(value = "评论用户头像")
     private String avatarUrl;
 
     @ApiModelProperty(value = "评论用户id")
     private Integer userId;
 
+    @ApiModelProperty(value = "回复用户id")
+    private Integer reply_id;
+
     @ApiModelProperty(value = "回复用户的名字")
     private String replyuser_username;
+
+    @ApiModelProperty(value = "回复用户的别名")
+    private String replyuser_nickname;
 
     @ApiModelProperty(value = "回复用户的评论内容")
     private String reply_content;

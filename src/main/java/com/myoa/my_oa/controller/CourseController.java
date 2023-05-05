@@ -119,6 +119,7 @@ public class CourseController {
             @ApiParam(name = "course",value = "课程对象")
             @RequestBody Course course
     ){
+        redisTemplate.delete("index_course::coursedata");
         boolean save = courseService.save(course);
         return save?R.ok():R.error();
     }

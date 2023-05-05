@@ -12,6 +12,7 @@ import com.myoa.my_oa.service.SysUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,24 +46,32 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
             if(sysUser!=null ){
                 String username = sysUser.getUsername();
                 String avatarUrl = sysUser.getAvatarUrl();
-
+                String nickname = sysUser.getNickname();
                 CommentDto commentDto = new CommentDto();
                 //----------------------
                 commentDto.setContent(c.getContent());
                 commentDto.setGmtCreate(c.getGmtCreate());
                 commentDto.setUsername(username);
+                commentDto.setNickname(nickname);
                 commentDto.setAvatarUrl(avatarUrl);
                 commentDto.setUserId(c.getUserId());
                 commentDto.setId(c.getId());
+
                 if(replycomment!=null){
                     log.info("reply=>",replycomment);
                     commentDto.setReply_content(replycomment.getContent());
                     SysUser replyuser= sysUserService.getById(replycomment.getUserId());
                     if(replyuser!=null){
                         String reply_username = replyuser.getUsername();
+                        String reply_nickname = replyuser.getNickname();
+                        Integer id = replyuser.getId();
                         commentDto.setReplyuser_username(reply_username);
+                        commentDto.setReplyuser_nickname(reply_nickname);
+                        commentDto.setReply_id(id);
                     }else{
+                        commentDto.setReply_id(c.getReplyId());
                         commentDto.setReplyuser_username("账号已注销");
+                        commentDto.setReplyuser_nickname("账号已注销");
                     }
                 }else{
                     commentDto.setReply_content("");
@@ -85,10 +94,18 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                     SysUser replyuser= sysUserService.getById(replycomment.getUserId());
                     if(replyuser!=null){
                         String reply_username = replyuser.getUsername();
+                        String reply_nickname = replyuser.getNickname();
                         commentDto.setReplyuser_username(reply_username);
+                        commentDto.setReplyuser_nickname(reply_nickname);
+                        Integer id = replyuser.getId();
+                        commentDto.setReplyuser_username(reply_username);
+                        commentDto.setReplyuser_nickname(reply_nickname);
+                        commentDto.setReply_id(id);
                     }
                     else{
+                        commentDto.setReply_id(c.getReplyId());
                         commentDto.setReplyuser_username("账号已注销");
+                        commentDto.setReplyuser_nickname("账号已注销");
                     }
                 }else{
                     commentDto.setReply_content("");

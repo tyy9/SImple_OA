@@ -50,11 +50,6 @@ public class RabbitmqListener {
             redisTemplate.delete("order_detail"+courseOrder.getId());
             courseOrder.setTime(false);
             courseOrderService.updateById(courseOrder);
-            Course course = courseService.getById(courseOrder.getCourseId());
-            log.info("存量=>"+course.getId());
-            Long buycount = course.getBuycount();
-            course.setBuycount(++buycount);
-            courseService.updateById(course);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
 
         }
@@ -92,9 +87,7 @@ public class RabbitmqListener {
             redisTemplate.delete("order_detail"+courseOrder.getId());
             courseOrder.setTime(false);
             courseOrderService.updateById(courseOrder);
-            Course course = courseService.getById(courseOrder.getCourseId());
-            course.setBuycount(course.getBuycount()+1);
-            courseService.updateById(course);
+
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
 

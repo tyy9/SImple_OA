@@ -8,13 +8,18 @@ import com.myoa.my_oa.entity.Comment;
 import com.myoa.my_oa.entity.Course;
 import com.myoa.my_oa.entity.SysUser;
 import com.myoa.my_oa.entity.dto.CommentDto;
+import com.myoa.my_oa.entity.dto.CommentSearchDto;
+import com.myoa.my_oa.entity.dto.UserCommentDto;
+import com.myoa.my_oa.exception.CustomerException;
 import com.myoa.my_oa.service.CommentService;
 import com.myoa.my_oa.service.SysUserService;
+import com.myoa.my_oa.utils.PageUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -67,8 +72,8 @@ public class CommentController {
     }
 
     @ApiOperation(value = "教师评论分页查询")
-    @PostMapping("/pageTeacher_Course/{page}/{limit}")
-    public R pageTeacher_Course(
+    @PostMapping("/pageComment_Teacher/{page}/{limit}")
+    public R pageComment_Teacher(
             @ApiParam(name = "page",value = "当前页数",required = true)
             @PathVariable int page,
             @ApiParam(name = "limit",value = "最大显示数",required = true)
@@ -89,6 +94,68 @@ public class CommentController {
         return R.ok().data("comment",commentDtoList).data("total",total);
     }
 
+    @ApiOperation(value = "用户评论分页查询")
+    @PostMapping("/pageUser_Comment/{page}/{limit}")
+    public R pageUser_Comment(
+            @ApiParam(name = "page",value = "当前页数",required = true)
+            @PathVariable int page,
+            @ApiParam(name = "limit",value = "最大显示数",required = true)
+            @PathVariable int limit,
+            @ApiParam(name = "search",value = "搜索对象")
+            @RequestBody(required = false) CommentSearchDto search
+    ){
+      //先查出所有用户
+        LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        sysUserLambdaQueryWrapper.like(!StringUtils.isEmpty(search.getUsername()),SysUser::getUsername,search.getUsername());
+        List<SysUser> list = sysUserService.list(sysUserLambdaQueryWrapper);
+        if(list.size()>0){
+            List<UserCommentDto> userCommentDtoList = new ArrayList<>();
+            for(SysUser user:list){
+                //查出用户的评论
+                LambdaQueryWrapper<Comment> commentLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                commentLambdaQueryWrapper.eq(Comment::getUserId,user.getId());
+                int count = commentService.count(commentLambdaQueryWrapper);
+                //只获取发表过评论的用户
+                if(count>0){
+                    UserCommentDto userCommentDto = new UserCommentDto();
+                    BeanUtils.copyProperties(user,userCommentDto);
+                    //获取commentDto集合
+                    List<Comment> commentList = commentService.list(commentLambdaQueryWrapper);
+                    ArrayList<Comment> comments = new ArrayList<>();
+                    //模糊查询
+                    if(search.getContent()!=null&&search.getContent()!=""){
+                        for(Comment c:commentList){
+                            if(c.getContent().contains(search.getContent())){
+                                comments.add(c);
+                            }
+                        }
+                        if(comments.size()>0){
+                            List<CommentDto> commentDtoList = commentService.commentPage(comments);
+                            userCommentDto.setChildren(commentDtoList);
+                            userCommentDtoList.add(userCommentDto);
+                            Page page1 = PageUtils.getPage(page, limit, userCommentDtoList);
+                            return R.ok().data("data",page1);
+                        }else{
+                            throw new CustomerException(25,"未能找到该用户的评论信息");
+                        }
+                    }
+                    if(commentList.size()>0){
+                        List<CommentDto> commentDtoList = commentService.commentPage(commentList);
+                        userCommentDto.setChildren(commentDtoList);
+                        userCommentDtoList.add(userCommentDto);
+                    }else{
+                        throw new CustomerException(25,"未能找到该用户的评论信息");
+                    }
+
+                }
+            }
+            Page page1 = PageUtils.getPage(page, limit, userCommentDtoList);
+            return R.ok().data("data",page1);
+        }else{
+            throw new CustomerException(25,"未能找到该用户的评论信息");
+        }
+
+    }
 
 
 
@@ -153,6 +220,27 @@ public class CommentController {
         return b?R.ok():R.error().message("删除评论失败");
     }
 
+    @ApiOperation(value = "根据评论id回显")
+    @PostMapping("/findCommentById/{id}")
+    public R findCommentById(
+            @ApiParam(name = "id",value = "评论id")
+            @PathVariable Integer id
+    ){
+        LambdaQueryWrapper<Comment> commentLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        commentLambdaQueryWrapper.eq(Comment::getId,id);
+        Comment one = commentService.getOne(commentLambdaQueryWrapper);
+        return R.ok().data("comment",one);
+    }
+
+    @ApiOperation(value = "批量删除评论信息")
+    @DeleteMapping("/deletebatch")
+    public R deletebatch(
+            @ApiParam(name="ids",value = "评论id集合")
+            @RequestBody List<Integer> ids
+    ){
+        boolean b = commentService.removeByIds(ids);
+        return b?R.ok():R.error();
+    }
 
 }
 

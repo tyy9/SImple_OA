@@ -19,6 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +44,9 @@ public class  SysUserController {
     SysUserService sysUserService;
     @Autowired
     SysRoleService sysRoleService;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @Autowired
     CourseService courseService;
@@ -81,6 +85,7 @@ public class  SysUserController {
             @ApiParam(name = "user",value = "用户对象")
             @RequestBody SysUser user
     ){
+        redisTemplate.delete("index_teacher::teacher");
         boolean save = sysUserService.save(user);
         return save?R.ok():R.error();
     }
@@ -103,6 +108,7 @@ public class  SysUserController {
             @ApiParam(name = "user",value = "用户对象")
             @RequestBody  SysUser sysUser
     ){
+        redisTemplate.delete("index_teacher::teacher");
         boolean b = sysUserService.updateById(sysUser);
         return b?R.ok():R.error();
     }

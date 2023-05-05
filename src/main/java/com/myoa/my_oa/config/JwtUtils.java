@@ -79,6 +79,7 @@ public class JwtUtils {
         return (Integer) claims.get("id");
     }
 
+
     //OSS改造，从请求头的Authorization获取token
     public static Integer getMemberIdByJwtToken_OSS(HttpServletRequest request) {
         //从request的header中获取token值

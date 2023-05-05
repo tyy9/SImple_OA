@@ -1,9 +1,7 @@
 package com.myoa.my_oa.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -47,6 +45,9 @@ public class Comment implements Serializable {
     @ApiModelProperty(value = "创建时间")
     private Date gmtCreate;
 
+    @TableLogic
+    @ApiModelProperty(value = "是否删除")
+    private Boolean isDeleted;
 
     @ApiModelProperty(value = "回复评论的id")
     private Integer replyId;

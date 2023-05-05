@@ -3,6 +3,7 @@ package com.myoa.my_oa.Interceptor;
 import com.myoa.my_oa.config.JwtUtils;
 import com.myoa.my_oa.entity.SysUser;
 import com.myoa.my_oa.exception.CustomerException;
+import com.myoa.my_oa.service.SysRoleService;
 import com.myoa.my_oa.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -16,6 +17,11 @@ import java.util.logging.Handler;
 public class JwtInterceptor implements HandlerInterceptor {
     @Autowired
     SysUserService sysUserService;
+
+    @Autowired
+    SysRoleService sysRoleService;
+
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 //        String origin = request.getHeader("Origin");
@@ -41,8 +47,7 @@ public class JwtInterceptor implements HandlerInterceptor {
             return true;
         }
         //如果没有token直接执行拦截
-        if(JwtUtils.getMemberIdByJwtToken_OSS(  request)==0){
-
+        if(JwtUtils.getMemberIdByJwtToken_OSS(request)==0){
             throw  new CustomerException(21,"未登录，无法访问api");
         }
         //如果无法从token值中找到相应用户对象直接拦截
