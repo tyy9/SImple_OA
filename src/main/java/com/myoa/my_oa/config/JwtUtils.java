@@ -1,5 +1,6 @@
 package com.myoa.my_oa.config;
 
+import com.myoa.my_oa.exception.CustomerException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -59,8 +60,7 @@ public class JwtUtils {
             if(StringUtils.isEmpty(jwtToken)) return false;
             Jwts.parser().setSigningKey(APP_SECRET).parseClaimsJws(jwtToken);
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            throw new CustomerException(25,"token可能已经过期，访问api被拦截");
         }
         return true;
     }

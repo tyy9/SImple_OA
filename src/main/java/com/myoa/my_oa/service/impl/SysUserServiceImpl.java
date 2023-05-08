@@ -124,9 +124,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 sysUser.setNickname(nickname);
                 sysUser.setRole("ROLE_STUDENT");
                 sysUser.setStatus(true);
+                //查重
+                LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper1 = new LambdaQueryWrapper<>();
+                sysUserLambdaQueryWrapper1.eq(SysUser::getUsername,username);
+                SysUser sysUserServiceOne = sysUserService.getOne(sysUserLambdaQueryWrapper);
+                if(sysUserServiceOne!=null){
+                    throw  new CustomerException(25,"用户名已存在,请重新输入");
+                }
                 boolean save = this.save(sysUser);
                 return save;
-
             }else{
                 throw new CustomerException(20000,"验证码错误");
             }

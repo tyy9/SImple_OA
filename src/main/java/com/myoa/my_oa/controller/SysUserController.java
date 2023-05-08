@@ -9,6 +9,7 @@ import com.myoa.my_oa.entity.Course;
 import com.myoa.my_oa.entity.SysRole;
 import com.myoa.my_oa.entity.SysUser;
 import com.myoa.my_oa.entity.dto.SysMenu_father;
+import com.myoa.my_oa.exception.CustomerException;
 import com.myoa.my_oa.service.CourseService;
 import com.myoa.my_oa.service.SysRoleService;
 import com.myoa.my_oa.service.SysUserService;
@@ -158,6 +159,12 @@ public class  SysUserController {
             @ApiParam(name = "user",value = "用户对象")
             @RequestBody SysUser user
     ){
+        LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        sysUserLambdaQueryWrapper.eq(SysUser::getUsername,user.getUsername());
+        SysUser one = sysUserService.getOne(sysUserLambdaQueryWrapper);
+        if(one!=null){
+            throw  new CustomerException(25,"用户名已存在,请重新输入");
+        }
         user.setPassword(MD5.encrypt(user.getPassword()));
         user.setStatus(false);
         boolean save = sysUserService.save(user);
